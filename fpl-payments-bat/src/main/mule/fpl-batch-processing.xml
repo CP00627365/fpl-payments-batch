@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 		<file:connection workingDir="C:\Users\ANJIREDDY\Desktop\Batch-Process\output" />
 	</file:config>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="c5eb38e4-24c4-4411-9513-292ee5285355" basePath="/api" >
-		<http:request-connection host="moc-fpl-gp-batch-file-process-api.us-e1.cloudhub.io" port="80" />
+		<http:request-connection host="localhost" port="8081" />
 	</http:request-config>
 	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="8c5facba-bfb5-469b-808c-cda9b9cad4cf" >
 		<email:smtp-connection host="smtp.gmail.com" port="587" user="anjireddy990@gmail.com" password="anjireddy123" >
@@ -49,16 +49,22 @@ payload]]></ee:set-payload>
 				</batch:step>
 			</batch:process-records>
 			<batch:on-complete>
-				<email:send doc:name="Send-mail" doc:id="2cb99381-324f-4d65-bc2e-02995ed32988" config-ref="Email_SMTP" fromAddress="anjireddy990@gmail.com" subject="Files receved from GP Team.">
+				<email:send doc:name="Send-mail" doc:id="2cb99381-324f-4d65-bc2e-02995ed32988" config-ref="Email_SMTP" fromAddress="anjireddy990@gmail.com" subject="Files received from GP Team.">
 						<email:to-addresses>
 							<email:to-address value="anjireddy990@gmail.com" />
 						</email:to-addresses>
 					<email:body contentType="text/html">
-						<email:content><![CDATA[#["Dear MuleTeam,
-        
-       GP Files processed successfully
+						<email:content><![CDATA[#[output text/plain
 
-"]]]></email:content>
+---
+
+"<html><body>" ++
+"<p>Hi Team, </p>" ++
+"<p>GP files processed successfully</p>" ++
+"<p><br> </p>"++
+"<p>Thanks,</p>" ++
+"<p>Anjireddy</p>"  ++
+"</body></html>"]]]></email:content>
 					</email:body>
 					</email:send>
 
@@ -103,16 +109,22 @@ payload]]></ee:set-payload>
 				</batch:step>
 			</batch:process-records>
 			<batch:on-complete >
-				<email:send doc:name="Send-mail" doc:id="f907dca1-0ab3-438d-9b60-f2cbca940df1" config-ref="Email_SMTP" fromAddress="anjireddy990@gmail.com" subject="Files receved from FPL Team.">
+				<email:send doc:name="Send-mail" doc:id="f907dca1-0ab3-438d-9b60-f2cbca940df1" config-ref="Email_SMTP" fromAddress="anjireddy990@gmail.com" subject="Files received from FPL Team.">
 					<email:to-addresses >
 						<email:to-address value="anjireddy990@gmail.com" />
 					</email:to-addresses>
 					<email:body contentType="text/html">
-						<email:content ><![CDATA[#[" Dear MuleTeam,
-        
-       FPL Files processed successfully
+						<email:content ><![CDATA[#[output text/plain
 
-"]]]></email:content>
+---
+
+"<html><body>" ++
+"<p>Hi Team, </p>" ++
+"<p>FPL files processed successfully</p>" ++
+"<p><br> </p>"++
+"<p>Thanks,</p>" ++
+"<p>Anjireddy</p>"  ++
+"</body></html>"]]]></email:content>
 					</email:body>
 				</email:send>
 			</batch:on-complete>
