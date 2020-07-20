@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="8bda8dc4-889b-4ebc-8449-fb3e6fc2d98b" >
+		<file:connection workingDir="C:\Users\ANJIREDDY\Desktop\Batch-Process\" />
+	</file:config>
+	<file:config name="File_Config1" doc:name="File Config" doc:id="2a500145-fab6-4ee1-915b-d0081b582291" >
+		<file:connection workingDir="C:\Users\ANJIREDDY\Desktop\Batch-Process\output" />
+	</file:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="c5eb38e4-24c4-4411-9513-292ee5285355" basePath="/api" >
+		<http:request-connection host="moc-fpl-gp-batch-file-process-api.us-e1.cloudhub.io" port="80" />
+	</http:request-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="8c5facba-bfb5-469b-808c-cda9b9cad4cf" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="anjireddy990@gmail.com" password="anjireddy123" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="085f0899-69b8-4dea-9ee9-6a58ef5c2d08" file="loc_app.yaml" />
+	<flow name="GP-batch-processingFlow" doc:id="a1ef7011-b090-4703-9efd-edeccc521abd" >
+		<file:listener doc:name="Picking-files-from-GP-file-server" doc:id="3a8ef335-3799-409f-96c0-a927403dcfb4" config-ref="File_Config" directory="GP\" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<ee:transform doc:name="Transform Message-csv-to-json" doc:id="211220bc-660b-4f2d-a22b-910d1dedb3b9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="Gp-batch-processingBatch_Job" doc:id="2208260a-7d05-4447-9adc-5661f2a871da" blockSize="1">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="57b61684-32be-4112-a553-39c6e0169464">
+					<!-- <file:write doc:name="Write" doc:id="ac75c492-f387-4aff-81b5-edc6ca05202c" config-ref="File_Config1" path="#['GP_CustomerDetails_batch_'++(now() as String {format: 'yyyy-MM-dd-hh-mm-ss'})++'.json']" mode="APPEND"/> -->
+					<http:request method="POST" doc:name="calling-moc-GP-server" doc:id="003add32-fcfc-4371-a5ed-bfa893dcf4ee" config-ref="HTTP_Request_configuration" path="/gpBatchFileProcess"/>
+
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete>
+				<email:send doc:name="Send-mail" doc:id="2cb99381-324f-4d65-bc2e-02995ed32988" config-ref="Email_SMTP" fromAddress="anjireddy990@gmail.com" subject="Files receved from GP Team.">
+						<email:to-addresses>
+							<email:to-address value="anjireddy990@gmail.com" />
+						</email:to-addresses>
+					<email:body contentType="text/html">
+						<email:content><![CDATA[#["Dear MuleTeam,
+        
+       GP Files processed successfully
+
+"]]]></email:content>
+					</email:body>
+					</email:send>
+
+			</batch:on-complete>
+			
+		</batch:job>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4daa1e35-a72b-4a16-af46-f46cba1299ce" type="ANY">
+				<ee:transform doc:name="GP Error Message" doc:id="d559c16a-05ad-40ea-afe8-85bf2fc9be48" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ERRORMESSAGE:error.errorMessage,
+ERRORdESCRIPTION:error.description
+
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="fpl-payments-bat-Flow" doc:id="1d3664e9-2b03-44bd-b319-ae17afd96dbf" >
+		<file:listener doc:name="Picking-files-from-FPL-file-server" doc:id="581fb5b1-c3a5-4218-ae4a-078a17d9d1ab" config-ref="File_Config" directory="FPL\" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<ee:transform doc:name="Transform Message-csv-to-json" doc:id="f750facd-ea5e-4219-bad4-9eeb14413018" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="fpl-batch-processingBatch_Job" doc:id="66d486c8-bd48-4c21-8f7b-12ab88fc9267" >
+			<batch:process-records >
+				<batch:step name="Batch_Step1" doc:id="97be473e-d135-47b7-86ba-4ec190d03959" >
+					<http:request method="POST" doc:name="calling-moc-fpl-server" doc:id="ea140c08-70f8-414f-ba30-5a812a6e2559" config-ref="HTTP_Request_configuration" path="/fplBatchFileProcess"/>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<email:send doc:name="Send-mail" doc:id="f907dca1-0ab3-438d-9b60-f2cbca940df1" config-ref="Email_SMTP" fromAddress="anjireddy990@gmail.com" subject="Files receved from FPL Team.">
+					<email:to-addresses >
+						<email:to-address value="anjireddy990@gmail.com" />
+					</email:to-addresses>
+					<email:body contentType="text/html">
+						<email:content ><![CDATA[#[" Dear MuleTeam,
+        
+       FPL Files processed successfully
+
+"]]]></email:content>
+					</email:body>
+				</email:send>
+			</batch:on-complete>
+		</batch:job>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="09d9c58f-5272-406f-8010-ac9d84f2b2f0" type="ANY">
+				<ee:transform doc:name="FPL Error  Message" doc:id="2fb2217a-302b-45d3-9d5e-c8f9d9077151" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	ERRORMESSAGE: error.errorMessage,
+	ERRORDESCRIPTION: error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
