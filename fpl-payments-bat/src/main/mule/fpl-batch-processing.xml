@@ -59,7 +59,7 @@ payload]]></ee:set-payload>
 
 "<html> <body>" ++
 "<p> Hi Team, </p>" ++
-"<p> All payments records for Gulf Power we are processed now. </p>" ++
+"<p> All payment records for Gulf Power have been processed. </p>" ++
 "<p> Below is the summary of the batch process. </p>" ++
 "<p> Total Number of Records: " ++ (payload.totalRecords as Number) ++ "</p>" ++
 "<p>Successful Records: " ++ (payload.successfulRecords as Number) ++ "</p>" ++
@@ -124,7 +124,7 @@ payload]]></ee:set-payload>
 
 "<html> <body>" ++
 "<p> Hi Team, </p>" ++
-"<p> All payments records for FPL wea are processed now. </p>" ++
+"<p> All payment records for FPL have been processed. </p>" ++
 "<p> Below is the summary of the batch process. </p>" ++
 "<p> Total Number of Records: " ++ (payload.totalRecords as Number) ++ "</p>" ++
 "<p>Successful Records: " ++ (payload.successfulRecords as Number) ++ "</p>" ++
