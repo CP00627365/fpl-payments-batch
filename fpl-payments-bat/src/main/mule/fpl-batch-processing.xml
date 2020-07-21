@@ -59,8 +59,8 @@ payload]]></ee:set-payload>
 
 "<html> <body>" ++
 "<p> Hi Team, </p>" ++
-"<p> All payments records for Gulf Power we are processed now </p>" ++
-"<p> Below is the summary of the batch process </p>" ++
+"<p> All payments records for Gulf Power we are processed now. </p>" ++
+"<p> Below is the summary of the batch process. </p>" ++
 "<p> Total Number of Records: " ++ (payload.totalRecords as Number) ++ "</p>" ++
 "<p>Successful Records: " ++ (payload.successfulRecords as Number) ++ "</p>" ++
 "<p>Failed Records: " ++ (payload.failedRecords as Number) ++ "</p>" ++
@@ -109,7 +109,7 @@ payload]]></ee:set-payload>
 			<batch:process-records >
 				<batch:step name="fpl_Batch_Step" doc:id="3345fcae-ab12-42f2-b954-c7e03a74939a" acceptPolicy="ALL">
 					<http:request method="POST" doc:name="calling-moc-fpl-file-server" doc:id="62bd969b-7fd3-4a9c-a836-c5cfc9192617" config-ref="HTTP_Request_configuration" path="${httprequest.fplpath}"/>
-					<validation:is-number doc:name="Is number" doc:id="644efd0a-8fd0-446e-9735-ac0f47c221b9" config-ref="Validation_Config" value="#[payload.AMOUNT]" numberType="SHORT"/>
+					<validation:is-number doc:name="Is number" doc:id="644efd0a-8fd0-446e-9735-ac0f47c221b9" config-ref="Validation_Config" value="#[payload.AMOUNT]" numberType="FLOAT"/>
 				</batch:step>
 			</batch:process-records>
 			<batch:on-complete >
@@ -124,8 +124,8 @@ payload]]></ee:set-payload>
 
 "<html> <body>" ++
 "<p> Hi Team, </p>" ++
-"<p> All payments records for FPL wea are processed now </p>" ++
-"<p> Below is the summary of the batch process </p>" ++
+"<p> All payments records for FPL wea are processed now. </p>" ++
+"<p> Below is the summary of the batch process. </p>" ++
 "<p> Total Number of Records: " ++ (payload.totalRecords as Number) ++ "</p>" ++
 "<p>Successful Records: " ++ (payload.successfulRecords as Number) ++ "</p>" ++
 "<p>Failed Records: " ++ (payload.failedRecords as Number) ++ "</p>" ++
@@ -137,5 +137,21 @@ payload]]></ee:set-payload>
 				</email:send>
 			</batch:on-complete>
 		</batch:job>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="868094ce-4833-4200-af71-ab52e5a64977" type="ANY">
+				<ee:transform doc:name="FPL-Error Message" doc:id="d81ade6d-27fa-4ef0-bd25-20a1d3890c71" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ERRORMESSAGE:error.errorMessage,
+ERRORdESCRIPTION:error.description
+
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>
