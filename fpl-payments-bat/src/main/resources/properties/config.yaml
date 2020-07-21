@@ -1,0 +1,22 @@
+Folderpath:
+  inputpath: "C:/Users/ANJIREDDY/Desktop/Batch-Process/"
+  
+  
+  
+httprequest:
+  host: "moc-fpl-gp-batch-file-process-api.us-e1.cloudhub.io"
+  port: "80"
+  basepath: "/api"
+  gppath: "/gpBatchFileProcess"
+  fplpath: "/fplBatchFileProcess"
+  
+  
+smtp:
+  host: "smtp.gmail.com"
+  port: "587"
+  username: "muleoperationsteam@gmail.com"
+  password: "muleoperationsteam123"
+  fromaddress: "muleoperationsteam@gmail.com"
+  toaddress: "anjireddy990@gmail.com"
+  gpsubject: "Gulf Power Payments EOD Batch Status"
+  fplsubject: "FPL Payments EOD Batch Status"

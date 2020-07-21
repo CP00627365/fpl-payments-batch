@@ -10,8 +10,8 @@ title: fpl-gp-batch-file-process-api
       application/json:
         example:
           {
-            "AMOUNT":0,
-            CUSTOMERID:"123654"
+            "AMOUNT":0.0,
+            CUSTOMER_ID:"123654"
           }
     responses:
       200:
@@ -19,8 +19,11 @@ title: fpl-gp-batch-file-process-api
           application/json:
             example:
               {
-                "STATUS":" ALL GP RECORDS PEOCESSED"
-              }
+  "COMPANY": "GULF POWER",
+  "CUSTOMER ID" :payload.CUSTOMERID,
+  "AMOUNT":payload.AMOUNT,
+     "STATUS" : " GULF POWER RECORDS PEOCESSED"
+}
               
 /fplBatchFileProcess:
   post:
@@ -29,8 +32,8 @@ title: fpl-gp-batch-file-process-api
       application/json:
         example:
           {
-            "AMOUNT":0,
-            CUSTOMERID:"123654"
+            "AMOUNT":0.0,
+            CUSTOMER_ID:"123654"
           }
     responses:
       200:
@@ -38,5 +41,9 @@ title: fpl-gp-batch-file-process-api
           application/json:
             example:
               {
-                "STATUS":" ALL FPL RECORDS PEOCESSED"
-              }
+   "COMPANY": "FLORIDA POWER LIGHT",
+  "CUSTOMER ID" :payload.CUSTOMERID,
+  "AMOUNT":payload.AMOUNT,
+     "STATUS" : " FLORIDA POWER LIGHT RECORDS PEOCESSED"
+
+}
